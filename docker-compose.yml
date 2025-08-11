@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:4.2.5
+    ports:
+      - "27017:27017"
+
+  backend:
+    build: ./backend
+    environment:
+      - WAIT_HOSTS=mongo:27017
+      - MONGODB_URI=mongodb://mongo:27017/trading-sim
+      - PORT=5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    environment:
+      - WAIT_HOSTS=backend:5000
+      - VITE_API_URL=http://localhost:5000
+      - VITE_SOCKET_URL=http://localhost:5000
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:
